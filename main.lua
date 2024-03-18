@@ -92,8 +92,6 @@ local HitmanToggle = TargetTab:CreateToggle({
 local LockTab = Window:CreateTab("Lock", 4483362458)
 
 local SilentAim = LockTab:CreateSection("Silent Aim")
-SilentAim:Set("SilentAim")
-
 local SilentToggle = LockTab:CreateToggle({
    Name = "Silent Aim",
    CurrentValue = false,
@@ -103,7 +101,7 @@ local SilentToggle = LockTab:CreateToggle({
 })
 
 function setPred() 
-						local pingvalue = game:GetService("Stats").Network.ServerStatsItem["Data Ping"]:GetValueString()
+			local pingvalue = game:GetService("Stats").Network.ServerStatsItem["Data Ping"]:GetValueString()
             local split = string.split(pingvalue,'(')
             local ping = tonumber(split[1])
 						
@@ -182,59 +180,68 @@ game.Players.LocalPlayer:GetMouse().KeyDown:Connect(function(key)
 end)
 
 game:GetService("RunService").Stepped:Connect(function()
-  setPred() 
-	
-	if not hitmanEnabled then return end
-	
-	local targetPosition = game.Workspace.Players[target].HumanoidRootPart.CFrame
-	local playerPosition = wkPlayer.HumanoidRootPart.CFrame
-	
-	for _, item in wkPlayer:GetChildren() do
-		if item:IsA("Tool") then
-		
-			local offset = CFrame.new(
-				targetPosition.X - playerPosition.X,
-				targetPosition.Y - playerPosition.Y,
-				targetPosition.Z - playerPosition.Z
-			) -- maybe add orbiting, but prob better with gun right next to target
-			
-			item.Grip = offset
+  
+	if hitmanEnabled == false then
+        print("Hitman off!") 
+        return 
+    else 
+        local success, response = pcall(function()
+            setPred() 
+        
+            local targetPosition = game.Workspace.Players[hitmanTarget].HumanoidRootPart.CFrame
+
+            local playerPosition = wkPlayer.HumanoidRootPart.CFrame
+            
+            for _, item in wkPlayer:GetChildren() do
+                if item:IsA("Tool") then
+                
+                    local offset = CFrame.new(
+                        targetPosition.X - playerPosition.X,
+                        targetPosition.Y - playerPosition.Y,
+                        targetPosition.Z - playerPosition.Z
+                    ) -- maybe add orbiting, but prob better with gun right next to target
+                    
+                    item.Grip = offset
 
 
-			-- change orientation if needed:
-			-- item.Handle.Part.Rotation = Vector3
+                    -- change orientation if needed:
+                    -- item.Handle.Part.Rotation = Vector3
 
-			
-		end
-	end
+                    
+                end
+            end
+        end)
+        
+    end
+
 
 end)
 
 -- silent aim 
 
-local mt = getrawmetatable(game)
-local old = mt.__namecall
-setreadonly(mt, false)
-mt.__namecall = newcclosure(function(...)
-        local args = {...}
+-- local mt = getrawmetatable(game)
+-- local old = mt.__namecall
+-- setreadonly(mt, false)
+-- mt.__namecall = newcclosure(function(...)
+--         local args = {...}
 
-				if not getnamecallmethod() == "FireServer" or not args[2] == "UpdateMousePos" or Plr.Character == nil then return end
+-- 				if not getnamecallmethod() == "FireServer" or not args[2] == "UpdateMousePos" or Plr.Character == nil then return end
 
 				
 				
-        if hitmanEnabled then
+--         if hitmanEnabled then
 
-						local targetSpot = game.Workspace.Players[hitmanTarget].Character["HumanoidRootPart"]
-            args[3] = targetSpot.Position+(targetSpot.Velocity*PredictionValue)
+-- 						local targetSpot = game.Workspace.Players[hitmanTarget].Character["HumanoidRootPart"]
+--             args[3] = targetSpot.Position+(targetSpot.Velocity*PredictionValue)
 
 
-            return old(unpack(args))
-        end
+--             return old(unpack(args))
+--         end
 
-				if lockEnabled then
-						local targetSpot = game.Workspace.Players[lockTarget].Character["HumanoidRootPart"]
-						args[3] = targetSpot.Position+(targetSpot.Velocity*PredictionValue)
-				end
+-- 				if lockEnabled then
+-- 						local targetSpot = game.Workspace.Players[lockTarget].Character["HumanoidRootPart"]
+-- 						args[3] = targetSpot.Position+(targetSpot.Velocity*PredictionValue)
+-- 				end
 				
-        return old(...)
-end)
+--         return old(...)
+-- end)
